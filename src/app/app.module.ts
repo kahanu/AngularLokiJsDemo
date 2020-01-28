@@ -7,6 +7,7 @@ import { LayoutModule } from './shared/layout/layout.module';
 import { HttpClientModule } from '@angular/common/http';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
+import { LokiModule } from './loki/loki.module';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { SharedModule } from './shared/shared.module';
     LayoutModule,
     CoreModule,
     SharedModule,
+    LokiModule,
     AppRoutingModule
   ],
   providers: [],
