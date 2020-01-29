@@ -2,9 +2,6 @@
 
 This is an Angular 8 application that implements LokiJs as an in-memory-database. [Click here](https://github.com/techfort/LokiJS) to find out more about LokiJs a JavaScript NoSql database option.
 
-## Demo Site
-[Angular Starter Kit Demo Site](https://kahanu.github.io/AngularStarterKit/)
-
 ## What is this?
 
 LokiJs can give your application full CRUD capabilities without hitting a web api endpoint or any live backend server.  All the data is stored by default in the browser's local storage.  There are other options (Adapters) that allow you to use other storage means.
