@@ -268,4 +268,69 @@ A normal HTML table would look something like this.  Nothing new here, just stan
 </table>
 ```
 
+## Troubleshooting
+### Module not found: Error: Can't resolve 'fs'
+
+This seems to be an issue with Angular and npm packages that use ```fs```, which is a node based file-system package.  You may get an error in the console when you start up the project like this:
+
+```
+WARNING in ./node_modules/lokijs/src/lokijs.js
+Module not found: Error: Can't resolve 'fs' in 'C:\Users\blah\source\repos\myapp\node_modules\lokijs\src'
+```
+
+For this demo app, I've found that this warning can be fixed by adding the following to the end of your package.json, right after the devDependencies element.
+
+```json
+  "browser": {
+    "fs": false
+  }
+```
+
+This is all that was needed for the demo app to work, but I've needed other properties included for other apps to work, and even then, this doesn't completely eliminate the warning.
+
+```json
+    "browser": {
+        "crypto": false,
+        "fs": false,
+        "path": false,
+        "os": false,
+        "net": false,
+        "stream": false,
+        "tls": false
+    }
+```
+
+There are other suggestions that your Angular app contains the following in the root tsconfig.json file:
+
+```json
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "downlevelIteration": true,
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "typeRoots": [
+      "node_modules/@types"  <--- include this if not already there
+    ],
+    "lib": [
+      "es2018",
+      "dom"
+    ]
+  }
+}
+```
+
+Another suggestion was to include the ```@types/node``` package to the devDependencies.
+
+If all this doesn't remove the warning, the project should still work since it is after all just a warning and not an error that won't let Angular compile.
+
+
 I hope this helps.  Enjoy.
