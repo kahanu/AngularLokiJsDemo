@@ -8,9 +8,15 @@ LokiJs can give your application full CRUD capabilities without hitting a web ap
 
 ## Recommendations
 
-This is NOT recommended for large public-facing production applications.  I use it only when I'm in development and for demo purposes to clients.  This way I can practice code-first development without having to spin up a relational database with tables, etc.  I just need to create Angular models in the shape that I need, and I can easily modify them before creating a full development database schema.  Or it can easily be used for a production NoSql implementation such as with MongoDB.
+For web development, this is NOT recommended for large public-facing production applications.  I use it only when I'm in development and for demo purposes to clients.  This way I can practice code-first development without having to spin up a relational database with tables, etc.  I just need to create Angular models in the shape that I need, and I can easily modify them before creating a full development database schema.  Or it can easily be used for a production NoSql implementation such as with MongoDB.
 
 This is a good alternative for the "angular-in-memory-web-api" package, as this package will not work if your application currently uses live WebApi services.  LokiJs will work along side live WebApi services without issues.
+
+For mobile development, it is supposed to be a good alternative based on your needs.  I have not used it in a mobile app yet.
+
+## Note
+
+In this application, I've installed the ```LokiJs``` npm package in the devDependencies collection.  Since I'm only going to use it for development, I don't want it being part of the bundles for production since it will never be used this way.  But for mobile development, it will probably go into the standard dependencies collection.
 
 ## Run It
 
