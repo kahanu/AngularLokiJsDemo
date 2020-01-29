@@ -1,18 +1,20 @@
 import { Injectable } from '@angular/core';
-import { LokiService } from '../../loki/loki.service';
+import { LokiServiceBase } from '../../loki/loki.service';
 import { Customer } from '../../shared/models';
+import { config } from '../../shared/shared.config';
 
 @Injectable({
   providedIn: 'root'
 })
-export class LokiCustomerService {
-  private CUSTOMERS = 'customers';
-  private dbName = 'mydb.json';
+export class LokiCustomerService extends LokiServiceBase<Customer> {
 
-  constructor(private loki: LokiService) {
-    let db = loki.init(this.dbName, this.CUSTOMERS);
-    if (db.getCollection(this.CUSTOMERS) === null) {
-      let customers = db.addCollection(this.CUSTOMERS);
+  constructor() {
+    super(config.dbName, config.entities.customers);
+    
+    let customers = this.db.getCollection(config.entities.customers);
+
+    if(customers.data.length === 0) {
+      // Seed only if needed.
       customers.insert([
         {
           "id": 1,
@@ -40,23 +42,5 @@ export class LokiCustomerService {
         }
       ]);
     }
-
-    db.saveDatabase(this.dbName);
-  }
-
-  getAll() {
-    return this.loki.getAll();
-  }
-
-  getById(id: number) {
-    return this.loki.getById(id);
-  }
-
-  update(customer: Customer) {
-    this.loki.update(customer);
-  }
-
-  delete(id: number) {
-    this.loki.delete(id);
   }
 }

@@ -17,36 +17,49 @@ export class CustomersComponent implements OnInit {
   constructor(private customerService: LokiCustomerService) { }
 
   ngOnInit() {
-    this.updateCustomer();
+    // this.updateCustomer();
     this.loadCustomer();
-    this.deleteCustomer();
+    // this.deleteCustomer({ id: 5 });
+    // this.insertCustomer();
     this.loadCustomers();
   }
 
   loadCustomers() {
     this.customers$ = this.customerService.getAll()
       .pipe(
-        tap(r => console.log('r: ', r.data)),
-        map(response => response.data as Customer[]));
+        tap(r => console.log('all: ', r)),
+        map(response => response as Customer[]));
   }
 
   loadCustomer() {
     this.customerService.getById(3)
-      .subscribe(c => console.log('c: ', c[0]));
+      .subscribe(c => console.log('loaded customer: ', c));
   }
 
   updateCustomer() {
     let c: Customer;
     this.customerService.getById(1)
       .subscribe(cust => {
-        c = cust[0];
+        c = cust;
         console.log('c to update: ', c);
-        c.lastName = 'Doe';
-        this.customerService.update(c);
+        c.lastName = 'Winston';
+        this.customerService.update(c)
+          .subscribe(cust => console.log('updated customer: ', cust));
       });
   }
 
-  deleteCustomer() {
-    this.customerService.delete(4);
+  deleteCustomer(query: any) {
+
+    this.customerService.deleteEntity(query);
+  }
+
+  insertCustomer() {
+    let c: Customer = new Customer();
+    c.id = 5;
+    c.firstName = 'King';
+    c.lastName = 'Wilder';
+    c.address = 'Golf Center Dr.';
+
+    this.customerService.insert(c);
   }
 }

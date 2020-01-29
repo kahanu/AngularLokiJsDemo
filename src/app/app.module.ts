@@ -8,6 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { LokiModule } from './loki/loki.module';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,7 @@ import { LokiModule } from './loki/loki.module';
     LayoutModule,
     CoreModule,
     SharedModule,
-    LokiModule,
+    !environment.production ? LokiModule : null,
     AppRoutingModule
   ],
   providers: [],

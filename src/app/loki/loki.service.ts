@@ -1,45 +1,72 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import * as Loki from 'lokijs';
-import * as LokiLocalStorageAdapter from 'lokijs';
 import { of, Observable } from 'rxjs';
+import { Entity } from '../shared/models/base';
 
 @Injectable({
   providedIn: 'root'
 })
-export class LokiService {
-  private db: any;
-  private collName: string;
+export abstract class LokiServiceBase<T extends Entity | any> {
+  protected db: any;
 
-  init(fileName: string, collName: string, opt?: any) {
-    this.collName = collName;
-    opt = opt || {};
-    opt.autoload = true,
-    opt.autosave = true,
-    opt.adapter = new LokiLocalStorageAdapter(fileName);
-    if (this.db === undefined) {
-      this.db = new Loki(fileName, opt);
+  constructor(
+    @Inject('dbName') protected dbName: string, 
+    @Inject('collName') protected collName: string) {
+
+      this.db = new Loki(dbName, {
+        autoload: true,
+        autosave: true,
+        autosaveInterval: 10000
+      });
+      
+      this.databaseInit();
+  }
+
+  private databaseInit() {
+    this.db.loadDatabase();
+    if (!this.db.getCollection(this.collName)) {
+      this.db.addCollection(this.collName);
     }
-    return this.db;
   }
 
-  getAll(): Observable<any> {
-    return of(this.db.getCollection(this.collName));
+  getAll(): Observable<T[]> {
+    return of(this.db.getCollection(this.collName).data);
   }
 
-  getById(id: number): Observable<any> {
+  getById(id: number): Observable<T> {
     const coll = this.db.getCollection(this.collName);
-    return of(coll.find({ id: id }));
+    return of(coll.findOne({ id: id }));
   }
 
-  update(data: any): void {
+  update(data: any): Observable<T> {
     const coll = this.db.getCollection(this.collName);
-    let found = coll.find({ id: data.id });
-    found = [...found, data];
+
+    let found = coll.findOne({ id: data.id });
+    found = {...found, data};
     coll.update(found);
+
+    this.db.saveDatabase(this.collName);
+    return of(found);
   }
 
-  delete(id: number): void {
+  delete(id: number): Observable<void> {
     const coll = this.db.getCollection(this.collName);
     coll.findAndRemove({ id: id });
+    this.db.saveDatabase(this.collName);
+    return of();
+  }
+
+  deleteEntity(query: any): Observable<void> {
+    const coll = this.db.getCollection(this.collName);
+    coll.findAndRemove(query);
+    this.db.saveDatabase(this.collName);
+    return of();
+  }
+
+  insert(data: T): Observable<T> {
+    const coll = this.db.getCollection(this.collName);
+    coll.insert(data);
+    this.db.saveDatabase(this.collName);
+    return of(data);
   }
 }
