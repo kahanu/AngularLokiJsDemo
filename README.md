@@ -271,7 +271,7 @@ A normal HTML table would look something like this.  Nothing new here, just stan
 ## Troubleshooting
 ### Module not found: Error: Can't resolve 'fs'
 
-This seems to be an issue with Angular and npm packages that use ```fs```, which is a node based file-system package.  You may get an error in the console when you start up the project like this:
+This seems to be an issue with Angular and npm packages that use ```fs```, which is a node based file-system package.  You may get a warning in the console when you start up the project like this:
 
 ```
 WARNING in ./node_modules/lokijs/src/lokijs.js
