@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Customer } from '../shared/models';
-import { CustomerService } from '../core/services/customer.service';
 import { map, tap } from 'rxjs/operators';
 import { LokiCustomerService } from '../core/services/loki-customer.service';
 

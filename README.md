@@ -1,17 +1,19 @@
-# Angular Starter Kit
+# Angular LokiJs Demo
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.4.
+This is an Angular 8 application that implements LokiJs as an in-memory-database. [Click here](https://github.com/techfort/LokiJS) to find out more about LokiJs a JavaScript NoSql database option.
 
 ## Demo Site
 [Angular Starter Kit Demo Site](https://kahanu.github.io/AngularStarterKit/)
 
 ## What is this?
 
-This can be used as the basis for your new base Angular project.  It follows good Angular conventions in layout and structure for components and modules as suggested by the Angular docs.
+LokiJs can give your application full CRUD capabilities without hitting a web api endpoint or any live backend server.  All the data is stored by default in the browser's local storage.  There are other options (Adapters) that allow you to use other storage means.
 
-This will save you time in creating the `shared` and `core` folders which should be in every Angular app, as described in the [Angular Docs](https://angular.io/guide/ngmodule-faq#what-kinds-of-modules-should-i-have-and-how-should-i-use-them).  It also has an `HttpBase` class in the services folder that provides all the plumbing for the basic CRUD operations with your RESTful service calls.
+## Recommendations
 
-This project does not contain any additional `npm` packages over the normal packages added by the Angular CLI when creating a new project.
+This is NOT recommended for large public-facing production applications.  I use it only when I'm in development and for demo purposes to clients.  This way I can practice code-first development without having to spin up a relational database with tables, etc.  I just need to create Angular models in the shape that I need, and I can easily modify them before creating a full development database schema.  Or it can easily be used for a production NoSql implementation such as with MongoDB.
+
+This is a good alternative for the "angular-in-memory-web-api" package, as this package will not work if your application currently uses live WebApi services.  LokiJs will work along side live WebApi services without issues.
 
 ## Run It
 
@@ -27,138 +29,238 @@ Once all the packages have been installed, you can run it.
 npm start
 ```
 
-## Project Structure
+## Local Loki Module
 
-This is the `app` folder structure:
-
-```javascript
-src 
- |- app
-     |- about 
-          |- about-routing.module.ts
-          |- about.component.css
-          |- about.component.html
-          |- about.component.ts
-          |- about.module.ts
-     |- core
-          |- guards
-               |- module-import.guard.ts
-          |- services
-               |- customer.service.ts
-               |- exception.service.ts
-          |- core.module.ts
-          |- http-base.ts
-     |- home 
-          |- home-routing.module.ts
-          |- home.component.css
-          |- home.component.html
-          |- home.component.ts
-          |- home.module.ts
-     |- shared
-          |- layout
-               |- app-layouts
-                   |- main-layout
-                       |- main-layout.component.css
-                       |- main-layout.component.html
-                       |- main-layout.component.ts  
-               |- navigation
-                   |- primary-nav
-                       |- primary-nav.component.css
-                       |- primary-nav.component.html
-                       |- primary-nav.component.ts
-               |- layout.module.ts
-          |- models
-               |- base.ts
-               |- index.ts
-          |- shared.module.ts
-     |- app-routing.module.ts
-     |- app.component.css
-     |- app.component.html
-     |- app.component.ts
-     |- app.module.ts
-
-```
-
-You can add your own application layout by simply creating a new component, and then updating the `app-routing.module.ts`.
+I've created the local LokiModule and service in the ```/loki``` folder.  It just contains the ```LokiModule``` and an abstract base class, ```LokiServiceBase```.
 
 ## Usage
-### Create new application from Starter Kit
 
-The concept here is to clone this repo to you machine to start a new Angular app with these features.  If you already have an existing application that has been in development, and you don't have the "Core" and "Shared" folders in your application, you can simply create the folders and follow the description from the [Angular Docs](https://angular.io/guide/ngmodule-faq#what-kinds-of-modules-should-i-have-and-how-should-i-use-them). 
+The ```LokiServiceBase``` looks like this:
 
-Otherwise, follow these instructions to start a new Angular app with the Core and Shared folders (and some other features) created.
+```typescript
+import { Injectable, Inject } from '@angular/core';
+import * as Loki from 'lokijs';
+import { of, Observable } from 'rxjs';
+import { Entity } from '../shared/models/base';
 
-1. **Get Repo** - download or clone the repo to your local dev machine at the location of your choice
-2. **Rename folder** - if you've cloned the repo, you'll have to rename the folder to your project name
-3. **Config update** - open the "angular.json" file in the root of the application
-4. **Rename Identifier** - you'll see the name 'AngularStarterKit' throughout this file.  Rename them all to the name of your project.
-5. **Package.json** - you'll need to rename the 'AngularStarterKit' in this file also. And also change the name property in the json file to your project name in kebab caseing (from MyAngularApp to my-angular-app).
-6. **npm install** - now install the npm packages
-7. **Run** - run the app with "npm start".  If it works, then this has been successful!  Only one thing left to do.
+@Injectable({
+  providedIn: 'root'
+})
+export abstract class LokiServiceBase<T extends Entity | any> {
+  protected db: any;
 
-### Connect to your Repo
-1. **Connect to git** - currently if you cloned this repo, it will still be connected to this remote repo.  You need to connect it to your repo.
-2. **Check the connection** - open a terminal in this folder then run "git remote -v".  This will return the list of repos connected to this application.
-```bash
-$ git remote -v
-origin https://github.com/kahanu/AngularStarterKit.git (fetch)
-origin https://github.com/kahanu/AngularStarterKit.git (push)
+  constructor(
+    @Inject('dbName') protected dbName: string, 
+    @Inject('collName') protected collName: string) {
+
+      this.db = new Loki(dbName, {
+        autoload: true,
+        autosave: true,
+        autosaveInterval: 10000
+      });
+      
+      this.databaseInit();
+  }
+
+  private databaseInit() {
+    this.db.loadDatabase();
+    if (!this.db.getCollection(this.collName)) {
+      this.db.addCollection(this.collName);
+    }
+  }
+
+  getAll(): Observable<T[]> {
+    return of(this.db.getCollection(this.collName).data);
+  }
+
+  getById(id: number): Observable<T> {
+    const coll = this.db.getCollection(this.collName);
+    return of(coll.findOne({ id: id }));
+  }
+
+  update(data: any): Observable<T> {
+    const coll = this.db.getCollection(this.collName);
+
+    let found = coll.findOne({ id: data.id });
+    found = {...found, data};
+    coll.update(found);
+
+    this.db.saveDatabase(this.collName);
+    return of(found);
+  }
+
+  delete(id: number): Observable<void> {
+    const coll = this.db.getCollection(this.collName);
+    coll.findAndRemove({ id: id });
+    this.db.saveDatabase(this.collName);
+    return of();
+  }
+
+  deleteEntity(query: any): Observable<void> {
+    const coll = this.db.getCollection(this.collName);
+    coll.findAndRemove(query);
+    this.db.saveDatabase(this.collName);
+    return of();
+  }
+
+  insert(data: T): Observable<T> {
+    const coll = this.db.getCollection(this.collName);
+    coll.insert(data);
+    this.db.saveDatabase(this.collName);
+    return of(data);
+  }
+}
+
 ```
 
-3. **Change the connection** - to change the connection to your repo, first remove the references to this repo with the following command:
-```bash
-$ git remote remove origin
-```
-4. **Confirm removal** - to confirm the repo connection was removed, run the following command, and it should return nothing.
-```bash
-$ git remote -v
-```
-5. **Connect to new repo** - now you can connect to the repo of your choice.
-```bash
-$ git remote add origin <your repo path>
-```
-
-That's it!  Your new application is ready to go.
-
-## Concept
-
-This is the basic concept of having a Core and Shared folder in your app.
-
-* **Core** - this contains all the services for your application, including guards and other related services.
-* **Shared** - this contains all the shared modules and components that can be used throughout your application.
-
-## Best Practices
-
-There are several things you can do to follow some best practices which will make your life easier when developing Angular apps.
-
-1. **Barrels** - when you have a folder (even with nested folders) that contain many components or other files that might be referenced elsewhere in your application, create a barrel file to list all the files.  This is just an `index.ts` file in the root of that folder that contains references to files in that folder.  This way if you are referencing more than one of those files in another file, you can include them all in the same IMPORT statement which makes your code cleaner and easier to manage.  (See the Shared/Entities folder)
-
-When you have these files that exist in the same base folder:
+To use the LokiServiceBase, you create a new service class that will extend the ```LokiServiceBase``` class.  This class will handle the CRUD operations for a single entity in your application, such as ```Customers```.
 
 ```javascript
--- models/entities/customer.ts
--- models/response-base.ts
--- models/entity.ts
+import { Injectable } from '@angular/core';
+import { LokiServiceBase } from '../../loki/loki.service';
+import { Customer } from '../../shared/models';
+import { config } from '../../shared/shared.config';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class LokiCustomerService extends LokiServiceBase<Customer> {
+
+  constructor() {
+    super(config.dbName, config.entities.customers);
+    
+    let customers = this.db.getCollection(config.entities.customers);
+
+    if(customers.data.length === 0) {
+      // Seed only if needed.
+      customers.insert([
+        {
+          "id": 1,
+          "firstName": "John",
+          "lastName": "Doh",
+          "address": "123 Main St."
+        },
+        {
+          "id": 2,
+          "firstName": "Sue",
+          "lastName": "Miller",
+          "address": "49 E 4th St."
+        },
+        {
+          "id": 3,
+          "firstName": "Henry",
+          "lastName": "Block",
+          "address": "88992 Cutter Lane"
+        },
+        {
+          "id": 4,
+          "firstName": "Alice",
+          "lastName": "Morey",
+          "address": "182 S Wilson Way"
+        }
+      ]);
+    }
+  }
+}
+
 ```
-... you can create a barrel file called `index.ts` in the models folder, and include the reference to those files.
+
+The base class is generic so it takes a parameter of the entity (Customer, Product, Order, etc) or ```any```.  The strongly-types class is recommended.
+
+At this point you can inject this service into your components in the normal manner.
 
 ```javascript
-export * from './entities/customer.ts';
-export * from './response-base.ts';
-export * from './entity.ts';
-```
-
-Now in the file that will reference these other files, you can import them like this:
-
-```javascript
-import { Customer, ResponseBase, Entity } from './shared/models';
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Customer } from '../shared/models';
+import { map, tap } from 'rxjs/operators';
+import { LokiCustomerService } from '../core/services/loki-customer.service';
 
 @Component({
-  ...
+  selector: 'app-customers',
+  templateUrl: './customers.component.html',
+  styleUrls: ['./customers.component.css']
 })
-export class CustomerComponent {
+export class CustomersComponent implements OnInit {
 
+  customers$: Observable<Customer[]>;
+
+  constructor(private customerService: LokiCustomerService) { }
+
+  ngOnInit() {
+    // this.updateCustomer();
+    this.loadCustomer();
+    // this.deleteCustomer({ id: 5 });
+    // this.insertCustomer();
+    this.loadCustomers();
+  }
+
+  loadCustomers() {
+    this.customers$ = this.customerService.getAll()
+      .pipe(
+        tap(r => console.log('all: ', r)),
+        map(response => response as Customer[]));
+  }
+
+  loadCustomer() {
+    this.customerService.getById(3)
+      .subscribe(c => console.log('loaded customer: ', c));
+  }
+
+  updateCustomer() {
+    let c: Customer;
+    this.customerService.getById(1)
+      .subscribe(cust => {
+        c = cust;
+        console.log('c to update: ', c);
+        c.lastName = 'Winston';
+        this.customerService.update(c)
+          .subscribe(cust => console.log('updated customer: ', cust));
+      });
+  }
+
+  deleteCustomer(query: any) {
+
+    this.customerService.deleteEntity(query);
+  }
+
+  insertCustomer() {
+    let c: Customer = new Customer();
+    c.id = 5;
+    c.firstName = 'Harry';
+    c.lastName = 'Potter';
+    c.address = 'Wizardry Dr.';
+
+    this.customerService.insert(c);
+  }
 }
+
 ```
 
+A normal HTML table would look something like this.  Nothing new here, just standard stuff.
 
+```javascript
+<h2>Customers</h2>
+<p>The customers are loaded from an Http service call.</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Address</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ngFor="let customer of customers$ | async">
+      <td>{{ customer.id }}</td>
+      <td>{{ customer.firstName }}</td>
+      <td>{{ customer.lastName }}</td>
+      <td>{{ customer.address }}</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+I hope this helps.  Enjoy.
