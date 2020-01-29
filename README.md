@@ -35,7 +35,7 @@ I've created the local LokiModule and service in the ```/loki``` folder.  It jus
 
 ## Usage
 
-The ```LokiServiceBase``` looks like this:
+The ```LokiServiceBase``` looks like this, it doesn't have to change for normal operations:
 
 ```typescript
 import { Injectable, Inject } from '@angular/core';
@@ -113,7 +113,7 @@ export abstract class LokiServiceBase<T extends Entity | any> {
 
 ```
 
-To use the LokiServiceBase, you create a new service class that will extend the ```LokiServiceBase``` class.  This class will handle the CRUD operations for a single entity in your application, such as ```Customers```.
+To use the ```LokiServiceBase```, you create a new service class that will extend the ```LokiServiceBase``` class.  This class will handle the CRUD operations for a single entity in your application, such as ```Customers```.
 
 ```javascript
 import { Injectable } from '@angular/core';
@@ -165,7 +165,7 @@ export class LokiCustomerService extends LokiServiceBase<Customer> {
 
 ```
 
-The base class is generic so it takes a parameter of the entity (Customer, Product, Order, etc) or ```any```.  The strongly-types class is recommended.
+The base class is generic so it takes a parameter of the entity (Customer, Product, Order, etc) or ```any```.  A strongly-typed class is recommended.
 
 At this point you can inject this service into your components in the normal manner.
 
@@ -188,6 +188,8 @@ export class CustomersComponent implements OnInit {
   constructor(private customerService: LokiCustomerService) { }
 
   ngOnInit() {
+    // These are used here just for demo purposes.
+
     // this.updateCustomer();
     this.loadCustomer();
     // this.deleteCustomer({ id: 5 });
@@ -239,7 +241,7 @@ export class CustomersComponent implements OnInit {
 
 A normal HTML table would look something like this.  Nothing new here, just standard stuff.
 
-```javascript
+```html
 <h2>Customers</h2>
 <p>The customers are loaded from an Http service call.</p>
 
