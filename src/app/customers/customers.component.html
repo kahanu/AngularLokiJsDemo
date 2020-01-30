@@ -1,7 +1,59 @@
 <h2>Customers</h2>
-<p>The customers are loaded from an Http service call.</p>
+<p>The customers are loaded from an LokiJs in-memory database.</p>
 
-<table class="table">
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xl-3">
+      <button class="btn btn-info" (click)="addNew()">Add New</button>
+      <select size="4" class="form-control">
+        <option
+          [value]="customer.id"
+          *ngFor="let customer of customers$ | async"
+          (click)="selectedCustomer($event)"
+          >{{ customer.firstName }} {{ customer.lastName }}</option
+        >
+      </select>
+    </div>
+    <div class="col-xl-9" *ngIf="selected">
+      <form [formGroup]="form">
+        <div class="form-group row">
+          <label for="firstName" class="col-sm-2">First Name:</label>
+          <div class="col-sm-10">
+            <input
+              type="text"
+              formControlName="firstName"
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="lastName" class="col-sm-2">Last Name:</label>
+          <div class="col-sm-10">
+            <input
+              type="text"
+              formControlName="lastName"
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="address" class="col-sm-2">Address:</label>
+          <div class="col-sm-10">
+            <input type="text" formControlName="address" class="form-control" />
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-12">
+            <button type="button" class="btn btn-primary" (click)="save()">Save</button>
+            <button type="button" class="btn btn-light" (click)="delete()">Delete</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- <table class="table">
   <thead>
     <tr>
       <th>Id</th>
@@ -18,4 +70,4 @@
       <td>{{ customer.address }}</td>
     </tr>
   </tbody>
-</table>
+</table> -->

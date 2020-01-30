@@ -10,7 +10,7 @@ export abstract class LokiServiceBase<T extends Entity | any> {
   protected db: any;
 
   constructor(
-    @Inject('dbName') protected dbName: string, 
+    @Inject('dbName') protected dbName: string,
     @Inject('collName') protected collName: string) {
 
       this.db = new Loki(dbName, {
@@ -18,7 +18,7 @@ export abstract class LokiServiceBase<T extends Entity | any> {
         autosave: true,
         autosaveInterval: 10000
       });
-      
+
       this.databaseInit();
   }
 
@@ -42,7 +42,7 @@ export abstract class LokiServiceBase<T extends Entity | any> {
     const coll = this.db.getCollection(this.collName);
 
     let found = coll.findOne({ id: data.id });
-    found = {...found, data};
+    found = {...found, ...data};
     coll.update(found);
 
     this.db.saveDatabase(this.collName);
