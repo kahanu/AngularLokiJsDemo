@@ -1,5 +1,5 @@
 {
-  "name": "lokijsdemo",
+  "name": "angularlokijsdemo",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
@@ -9,9 +9,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "deploy": "ng build --prod --base-href /LokiJsDemo/ && gh-pages -d dist/LokiJsDemo"
+    "deploy": "ng build --prod --base-href /AngularLokiJsDemo/ && gh-pages -d dist/AngularLokiJsDemo"
   },
-  "homepage": "https://kahanu.github.io/LokiJsDemo/",
+  "homepage": "https://kahanu.github.io/AngularLokiJsDemo/",
   "private": true,
   "dependencies": {
     "@angular/animations": "~8.2.14",
