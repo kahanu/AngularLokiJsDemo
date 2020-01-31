@@ -76,7 +76,7 @@ export abstract class LokiServiceBase<T extends Entity | any> {
     return of(this.db.getCollection(this.collName).data);
   }
 
-  getById(id: number): Observable<T> {
+  getById(id: number | string): Observable<T> {
     const coll = this.db.getCollection(this.collName);
     return of(coll.findOne({ id: id }));
   }
@@ -92,18 +92,18 @@ export abstract class LokiServiceBase<T extends Entity | any> {
     return of(found);
   }
 
-  delete(id: number): Observable<void> {
+  delete(id: number | string): Observable<any> {
     const coll = this.db.getCollection(this.collName);
     coll.findAndRemove({ id: id });
     this.db.saveDatabase(this.collName);
-    return of();
+    return of({});
   }
 
-  deleteEntity(query: any): Observable<void> {
+  deleteEntity(query: any): Observable<any> {
     const coll = this.db.getCollection(this.collName);
     coll.findAndRemove(query);
     this.db.saveDatabase(this.collName);
-    return of();
+    return of({});
   }
 
   insert(data: T): Observable<T> {
@@ -123,6 +123,7 @@ import { Injectable } from '@angular/core';
 import { LokiServiceBase } from '../../loki/loki.service';
 import { Customer } from '../../shared/models';
 import { config } from '../../shared/shared.config';
+import uuid from 'uuid';
 
 @Injectable({
   providedIn: 'root'
@@ -138,28 +139,28 @@ export class LokiCustomerService extends LokiServiceBase<Customer> {
       // Seed only if needed.
       customers.insert([
         {
-          "id": 1,
-          "firstName": "John",
-          "lastName": "Doh",
-          "address": "123 Main St."
+          id: uuid(),
+          firstName: 'John',
+          lastName: 'Doh',
+          address: '123 Main St.'
         },
         {
-          "id": 2,
-          "firstName": "Sue",
-          "lastName": "Miller",
-          "address": "49 E 4th St."
+          id: uuid(),
+          firstName: 'Sue',
+          lastName: 'Miller',
+          address: '49 E 4th St.'
         },
         {
-          "id": 3,
-          "firstName": "Henry",
-          "lastName": "Block",
-          "address": "88992 Cutter Lane"
+          id: uuid(),
+          firstName: 'Henry',
+          lastName: 'Block',
+          address: '88992 Cutter Lane'
         },
         {
-          "id": 4,
-          "firstName": "Alice",
-          "lastName": "Morey",
-          "address": "182 S Wilson Way"
+          id: uuid(),
+          firstName: 'Alice',
+          lastName: 'Morey',
+          address: '182 S Wilson Way'
         }
       ]);
     }
@@ -176,8 +177,10 @@ At this point you can inject this service into your components in the normal man
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Customer } from '../shared/models';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { LokiCustomerService } from '../core/services/loki-customer.service';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import uuid from 'uuid';
 
 @Component({
   selector: 'app-customers',
@@ -185,58 +188,76 @@ import { LokiCustomerService } from '../core/services/loki-customer.service';
   styleUrls: ['./customers.component.css']
 })
 export class CustomersComponent implements OnInit {
-
   customers$: Observable<Customer[]>;
+  form: FormGroup;
+  selected: boolean;
+  customer: Customer;
 
-  constructor(private customerService: LokiCustomerService) { }
+  constructor(
+    private customerService: LokiCustomerService,
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit() {
-    // These are used here just for demo purposes.
-
-    // this.updateCustomer();
-    this.loadCustomer();
-    // this.deleteCustomer({ id: 5 });
-    // this.insertCustomer();
     this.loadCustomers();
+    this.initForm(this.customer);
+  }
+
+  initForm(c?: Customer) {
+    this.form = this.fb.group({
+      id: [c ? c.id : 0],
+      firstName: [c ? c.firstName : ''],
+      lastName: [c ? c.lastName : ''],
+      address: [c ? c.address : '']
+    });
   }
 
   loadCustomers() {
-    this.customers$ = this.customerService.getAll()
-      .pipe(
-        tap(r => console.log('all: ', r)),
-        map(response => response as Customer[]));
+    this.customers$ = this.customerService.getAll().pipe(
+      map(response => response as Customer[])
+    );
   }
 
-  loadCustomer() {
-    this.customerService.getById(3)
-      .subscribe(c => console.log('loaded customer: ', c));
+  selectedCustomer(e: any) {
+    this.customerService.getById(e.target.value).subscribe(customer => {
+      if (customer) {
+        this.initForm(customer);
+        this.selected = true;
+      }
+    });
   }
 
-  updateCustomer() {
-    let c: Customer;
-    this.customerService.getById(1)
-      .subscribe(cust => {
-        c = cust;
-        console.log('c to update: ', c);
-        c.lastName = 'Winston';
-        this.customerService.update(c)
-          .subscribe(cust => console.log('updated customer: ', cust));
+  addNew() {
+    this.initForm();
+    this.selected = true;
+  }
+
+  delete() {
+    if (confirm('Are you sure you want to delete this customer?')) {
+      const customer = this.form.value;
+      this.customerService.delete(customer.id).subscribe(() => {
+        this.loadCustomers();
+        this.selected = false;
       });
+    }
   }
 
-  deleteCustomer(query: any) {
-
-    this.customerService.deleteEntity(query);
-  }
-
-  insertCustomer() {
-    let c: Customer = new Customer();
-    c.id = 5;
-    c.firstName = 'Harry';
-    c.lastName = 'Potter';
-    c.address = 'Wizardry Dr.';
-
-    this.customerService.insert(c);
+  save() {
+    const customer = this.form.value as Customer;
+    if (customer.id === 0) {
+      customer.id = uuid();
+      this.customerService.insert(customer).subscribe(c => {
+        this.loadCustomers();
+        this.selected = false;
+      });
+    } else {
+      this.customerService.update(customer).subscribe(c => {
+        if (c) {
+          this.loadCustomers();
+          this.selected = false;
+        }
+      });
+    }
   }
 }
 
@@ -246,26 +267,59 @@ A normal HTML table would look something like this.  Nothing new here, just stan
 
 ```html
 <h2>Customers</h2>
-<p>The customers are loaded from an Http service call.</p>
+<p>The customers are loaded from an LokiJs in-memory database.  This is a full CRUD demo.</p>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Id</th>
-      <th>First Name</th>
-      <th>Last Name</th>
-      <th>Address</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr ngFor="let customer of customers$ | async">
-      <td>{{ customer.id }}</td>
-      <td>{{ customer.firstName }}</td>
-      <td>{{ customer.lastName }}</td>
-      <td>{{ customer.address }}</td>
-    </tr>
-  </tbody>
-</table>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xl-3">
+      <button class="btn btn-info" (click)="addNew()">Add New</button>
+      <select size="4" class="form-control">
+        <option
+          [value]="customer.id"
+          *ngFor="let customer of customers$ | async"
+          (click)="selectedCustomer($event)"
+          >{{ customer.firstName }} {{ customer.lastName }}</option
+        >
+      </select>
+    </div>
+    <div class="col-xl-9" *ngIf="selected">
+      <form [formGroup]="form">
+        <div class="form-group row">
+          <label for="firstName" class="col-sm-2">First Name:</label>
+          <div class="col-sm-10">
+            <input
+              type="text"
+              formControlName="firstName"
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="lastName" class="col-sm-2">Last Name:</label>
+          <div class="col-sm-10">
+            <input
+              type="text"
+              formControlName="lastName"
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="address" class="col-sm-2">Address:</label>
+          <div class="col-sm-10">
+            <input type="text" formControlName="address" class="form-control" />
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-12">
+            <button type="button" class="btn btn-primary" (click)="save()">Save</button>
+            <button type="button" class="btn btn-light" (click)="delete()">Delete</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 ```
 
 ## Troubleshooting
