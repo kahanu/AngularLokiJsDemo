@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Customer } from '../shared/models';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { LokiCustomerService } from '../core/services/loki-customer.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import uuid from 'uuid';
 
 @Component({
   selector: 'app-customers',
@@ -22,10 +23,6 @@ export class CustomersComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // this.updateCustomer();
-    this.loadCustomer();
-    // this.deleteCustomer({ id: 5 });
-    // this.insertCustomer();
     this.loadCustomers();
     this.initForm(this.customer);
   }
@@ -41,46 +38,12 @@ export class CustomersComponent implements OnInit {
 
   loadCustomers() {
     this.customers$ = this.customerService.getAll().pipe(
-      tap(r => console.log('all: ', r)),
       map(response => response as Customer[])
     );
   }
 
-  loadCustomer() {
-    this.customerService
-      .getById(3)
-      .subscribe(c => console.log('loaded customer: ', c));
-  }
-
-  updateCustomer() {
-    let c: Customer;
-    this.customerService.getById(1).subscribe(cust => {
-      c = cust;
-      console.log('c to update: ', c);
-      c.lastName = 'Winston';
-      this.customerService
-        .update(c)
-        .subscribe(customer => console.log('updated customer: ', customer));
-    });
-  }
-
-  deleteCustomer(query: any) {
-    this.customerService.deleteEntity(query);
-  }
-
-  insertCustomer() {
-    const c: Customer = new Customer();
-    c.id = 5;
-    c.firstName = 'King';
-    c.lastName = 'Wilder';
-    c.address = 'Golf Center Dr.';
-
-    this.customerService.insert(c);
-  }
-
   selectedCustomer(e: any) {
-    console.log('selected customer: ', e.target.value);
-    this.customerService.getById(+e.target.value).subscribe(customer => {
+    this.customerService.getById(e.target.value).subscribe(customer => {
       if (customer) {
         this.initForm(customer);
         this.selected = true;
@@ -106,6 +69,7 @@ export class CustomersComponent implements OnInit {
   save() {
     const customer = this.form.value as Customer;
     if (customer.id === 0) {
+      customer.id = uuid();
       this.customerService.insert(customer).subscribe(c => {
         this.loadCustomers();
         this.selected = false;

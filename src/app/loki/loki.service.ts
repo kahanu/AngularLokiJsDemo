@@ -33,7 +33,7 @@ export abstract class LokiServiceBase<T extends Entity | any> {
     return of(this.db.getCollection(this.collName).data);
   }
 
-  getById(id: number): Observable<T> {
+  getById(id: number | string): Observable<T> {
     const coll = this.db.getCollection(this.collName);
     return of(coll.findOne({ id: id }));
   }
@@ -42,6 +42,7 @@ export abstract class LokiServiceBase<T extends Entity | any> {
     const coll = this.db.getCollection(this.collName);
 
     let found = coll.findOne({ id: data.id });
+
     found = {...found, ...data};
     coll.update(found);
 
@@ -49,18 +50,18 @@ export abstract class LokiServiceBase<T extends Entity | any> {
     return of(found);
   }
 
-  delete(id: number): Observable<void> {
+  delete(id: number | string): Observable<any> {
     const coll = this.db.getCollection(this.collName);
     coll.findAndRemove({ id: id });
     this.db.saveDatabase(this.collName);
-    return of();
+    return of({});
   }
 
-  deleteEntity(query: any): Observable<void> {
+  deleteEntity(query: any): Observable<any> {
     const coll = this.db.getCollection(this.collName);
     coll.findAndRemove(query);
     this.db.saveDatabase(this.collName);
-    return of();
+    return of({});
   }
 
   insert(data: T): Observable<T> {
