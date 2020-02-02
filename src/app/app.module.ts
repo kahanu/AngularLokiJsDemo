@@ -20,7 +20,7 @@ import { environment } from '../environments/environment';
     LayoutModule,
     CoreModule,
     SharedModule,
-    !environment.production ? LokiModule : null,
+    LokiModule,
     AppRoutingModule
   ],
   providers: [],
