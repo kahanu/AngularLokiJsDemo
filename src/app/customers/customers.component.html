@@ -5,7 +5,7 @@
   <div class="row">
     <div class="col-xl-3">
       <button class="btn btn-info" (click)="addNew()">Add New</button>
-      <select size="4" class="form-control">
+      <select size="10" class="form-control">
         <option
           [value]="customer.id"
           *ngFor="let customer of customers$ | async"
