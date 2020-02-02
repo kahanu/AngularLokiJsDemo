@@ -2,7 +2,7 @@
 
 This is an Angular 8 application that implements LokiJs as an in-memory-database. [Click here](https://github.com/techfort/LokiJS) to find out more about LokiJs a JavaScript NoSql database option.
 
-(Live Demo)[https://kahanu.github.io/AngularLokiJsDemo]
+[Live Demo](https://kahanu.github.io/AngularLokiJsDemo)
 
 ## What is this?
 
