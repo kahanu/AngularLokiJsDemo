@@ -1,8 +1,20 @@
 import { NgModule } from '@angular/core';
-import { FontAwesomeModule, FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { faHome, faUser, faInfo, faTools,
-  faQuestion, faCaretLeft, faCaretRight,
-  faTachometerAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  FontAwesomeModule,
+  FaIconLibrary
+} from '@fortawesome/angular-fontawesome';
+import {
+  faHome,
+  faUser,
+  faInfo,
+  faTools,
+  faQuestion,
+  faCaretLeft,
+  faCaretRight,
+  faTachometerAlt,
+  faSignOutAlt,
+  faShoppingCart
+} from '@fortawesome/free-solid-svg-icons';
 
 @NgModule({
   declarations: [],
@@ -11,6 +23,17 @@ import { faHome, faUser, faInfo, faTools,
 })
 export class IconsModule {
   constructor(private library: FaIconLibrary) {
-    library.addIcons(faHome, faUser, faInfo, faTools, faQuestion, faCaretLeft, faCaretRight, faTachometerAlt, faSignOutAlt);
+    library.addIcons(
+      faHome,
+      faUser,
+      faInfo,
+      faTools,
+      faQuestion,
+      faCaretLeft,
+      faCaretRight,
+      faTachometerAlt,
+      faSignOutAlt,
+      faShoppingCart
+    );
   }
 }
