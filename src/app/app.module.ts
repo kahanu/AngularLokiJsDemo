@@ -14,9 +14,10 @@ import { reducers, metaReducers } from './reducers';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 import { AppEffects } from './app.effects';
+import { ProductListComponent } from './products/presentation/product-list/product-list.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, ProductListComponent],
   imports: [
     BrowserModule,
     HttpClientModule,
