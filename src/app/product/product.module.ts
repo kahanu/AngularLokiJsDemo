@@ -12,6 +12,7 @@ import { ProductEffects } from './state/product.effects';
 import { ProductShellComponent } from './containers/product-shell/product-shell.component';
 import { ProductListComponent } from './presentation/product-list/product-list.component';
 import { ProductEditComponent } from './presentation/product-edit/product-edit.component';
+import { MaterialLibModule } from '../shared/modules/material-lib/material-lib.module';
 
 const productRoutes: Routes = [
   { path: '', component: ProductShellComponent }
@@ -21,9 +22,13 @@ const productRoutes: Routes = [
   declarations: [ProductShellComponent, ProductListComponent, ProductEditComponent],
   imports: [
     SharedModule,
+    MaterialLibModule,
     RouterModule.forChild(productRoutes),
     StoreModule.forFeature(config.entities.products, productReducer),
     EffectsModule.forFeature([ProductEffects])
+  ],
+  entryComponents: [
+    ProductEditComponent
   ]
 })
 export class ProductModule { }

@@ -1,1 +1,17 @@
-<p>product-edit works!</p>
+<h2 mat-dialog-title>Product</h2>
+<mat-dialog-content [formGroup]="form" *ngIf="product">
+  <mat-form-field>
+    <input matInput type="text" formControlName="name" placeholder="Product Name" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="text" formControlName="sku" placeholder="SKU" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="text" formControlName="price" placeholder="Price" />
+  </mat-form-field>
+  <mat-dialog-actions>
+    <button class="mat-raised-button mat-primary" (click)="saveProduct()">Save</button>
+    <button class="mat-raised-button" (click)="cancel()">Cancel</button>
+    <!-- <button class="btn btn-info">Delete</button> -->
+  </mat-dialog-actions>
+</mat-dialog-content>

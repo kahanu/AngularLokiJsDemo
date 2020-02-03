@@ -20,7 +20,9 @@ export const getCurrentProduct = createSelector(
       if (currentProductId === 0) {
         return {
           id: 0,
-          productName: '',
+          name: '',
+          sku: '',
+          price: 0
         };
       } else {
         return currentProductId ? productState.entities[currentProductId] : null;

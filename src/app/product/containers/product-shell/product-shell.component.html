@@ -1,1 +1,9 @@
-<p>product-shell works!</p>
+<div>
+  <button class="btn btn-primary" (click)="addNew()">Add New</button>
+</div>
+<h3>Products</h3>
+<app-product-list
+  [products]="products$ | async"
+  (edit)="editProduct($event)"
+  (delete)="deleteProduct($event)"
+  ></app-product-list>
