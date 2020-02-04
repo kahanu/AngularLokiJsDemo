@@ -1,5 +1,5 @@
-<h2 mat-dialog-title>Product</h2>
-<mat-dialog-content [formGroup]="form" *ngIf="product">
+<h2 mat-dialog-title>{{ data.mode }} Product</h2>
+<mat-dialog-content [formGroup]="form" *ngIf="data.product">
   <mat-form-field>
     <input matInput type="text" formControlName="name" placeholder="Product Name" />
   </mat-form-field>
@@ -10,8 +10,7 @@
     <input matInput type="text" formControlName="price" placeholder="Price" />
   </mat-form-field>
   <mat-dialog-actions>
-    <button class="mat-raised-button mat-primary" (click)="saveProduct()">Save</button>
-    <button class="mat-raised-button" (click)="cancel()">Cancel</button>
-    <!-- <button class="btn btn-info">Delete</button> -->
+    <button mat-raised-button class="mat-raised-button mat-button-base mat-primary" (click)="saveProduct()">Save</button>
+    <button mat-raised-button class="mat-raised-button mat-button-base mat-basic" (click)="cancel()">Cancel</button>
   </mat-dialog-actions>
 </mat-dialog-content>

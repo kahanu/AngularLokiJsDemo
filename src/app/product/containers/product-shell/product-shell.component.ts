@@ -34,11 +34,16 @@ export class ProductShellComponent implements OnInit {
   addNew() {
     this.store.dispatch(productActions.InitializeCurrentProduct());
     this.selectedProduct$.subscribe(prod => {
-      this.dialog.open(ProductEditComponent, {
+      const dialogRef = this.dialog.open(ProductEditComponent, {
         disableClose: true,
         data: {
-          product: prod
+          product: prod,
+          mode: 'Add'
         }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('result: ', result);
       });
     });
   }

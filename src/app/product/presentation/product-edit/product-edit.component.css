@@ -1,0 +1,8 @@
+mat-dialog-content {
+  height: 250px;
+  min-height: 250px;
+}
+
+.mat-form-field {
+  display: block;
+}
