@@ -44,14 +44,13 @@ export class ProductEditComponent implements OnInit {
 
   saveProduct() {
     const formVal = this.form.value;
-    console.log('formval: ', formVal);
+    console.log('form val: ', formVal);
     this.data.product = {...this.data.product, ...formVal};
-    console.log('product: ', this.data.product);
+    console.log('data.product: ', this.data.product);
     this.dialogRef.close(this.data.product);
   }
 
   cancel() {
-    // this.clearCurrent.emit();
     this.dialogRef.close();
   }
 }

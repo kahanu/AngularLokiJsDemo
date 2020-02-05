@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Store, select, Action } from '@ngrx/store';
 import { Effect, ofType, Actions } from '@ngrx/effects';
 import { Observable, of } from 'rxjs';
-import { withLatestFrom, filter, mergeMap, map, catchError } from 'rxjs/operators';
+import { withLatestFrom, filter, mergeMap, map, catchError, tap } from 'rxjs/operators';
 import { allProductsLoadedSelector } from './product.selectors';
 import { Product } from '../product';
 import { LokiProductService } from '../loki-product.service';
@@ -52,8 +52,7 @@ export class ProductEffects {
   createProduct$: Observable<Action> = this.actions$.pipe(
     ofType(actionTypes.ProductActions.CreateProduct),
     map((action) => action.product),
-    mergeMap((product: Product) =>
-      this.productService.insert(product).pipe(
+    mergeMap((product: Product) => this.productService.insert(product).pipe(
         map(newProduct => (productActions.CreateProductSuccess({newProduct}))),
         catchError(err => of(productActions.CreateProductFail(err)))
       )

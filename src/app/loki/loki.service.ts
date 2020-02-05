@@ -24,8 +24,10 @@ export abstract class LokiServiceBase<T extends Entity | any> {
 
   private databaseInit() {
     this.db.loadDatabase();
+
     if (!this.db.getCollection(this.collName)) {
       this.db.addCollection(this.collName);
+      this.db.saveDatabase();
     }
   }
 
@@ -39,15 +41,16 @@ export abstract class LokiServiceBase<T extends Entity | any> {
   }
 
   update(data: any): Observable<T> {
+    const data1 = Object.assign({}, data);
     const coll = this.db.getCollection(this.collName);
 
-    let found = coll.findOne({ id: data.id });
+    const found = coll.findOne({ id: data1.id });
+    const found1 = Object.assign(found, data1);
 
-    found = {...found, ...data};
-    coll.update(found);
+    coll.update(found1);
 
     this.db.saveDatabase(this.collName);
-    return of(found);
+    return of(found1);
   }
 
   delete(id: number | string): Observable<any> {
@@ -65,8 +68,10 @@ export abstract class LokiServiceBase<T extends Entity | any> {
   }
 
   insert(data: T): Observable<T> {
+    // console.log('data: ', data);
+    const data1 = Object.assign({}, data);
     const coll = this.db.getCollection(this.collName);
-    coll.insert(data);
+    coll.insert(data1);
     this.db.saveDatabase(this.collName);
     return of(data);
   }
