@@ -11,15 +11,15 @@ export abstract class LokiServiceBase<T extends Entity | any> {
 
   constructor(
     @Inject('dbName') protected dbName: string,
-    @Inject('collName') protected collName: string) {
+    @Inject('collName') protected collName: string
+  ) {
+    this.db = new Loki(dbName, {
+      autoload: true,
+      autosave: true,
+      autosaveInterval: 10000
+    });
 
-      this.db = new Loki(dbName, {
-        autoload: true,
-        autosave: true,
-        autosaveInterval: 10000
-      });
-
-      this.databaseInit();
+    this.databaseInit();
   }
 
   private databaseInit() {
@@ -41,7 +41,8 @@ export abstract class LokiServiceBase<T extends Entity | any> {
   }
 
   update(data: any): Observable<T> {
-    const data1 = Object.assign({}, data);
+    const data1 = Object.assign({}, data); // Hack to work with LokiJs.
+
     const coll = this.db.getCollection(this.collName);
 
     const found = coll.findOne({ id: data1.id });
